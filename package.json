@@ -1,6 +1,6 @@
 {
     "name": "ragged-chat-sdk",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Official SDK for integrating Ragged Chatbots into your website.",
     "type": "module",
     "main": "index.js",
