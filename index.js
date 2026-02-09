@@ -1,5 +1,5 @@
 export function init(config = {}) {
-    'use strict';
+
 
     // Configuration
     const API_URL = config.apiUrl || 'https://ragflowdb.onrender.com/api';
