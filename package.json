@@ -1,0 +1,19 @@
+{
+    "name": "ragged-chat-sdk",
+    "version": "1.0.0",
+    "description": "Official SDK for integrating Ragged Chatbots into your website.",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "ragged",
+        "chatbot",
+        "sdk",
+        "ai",
+        "chat"
+    ],
+    "author": "Ragged",
+    "license": "ISC"
+}
