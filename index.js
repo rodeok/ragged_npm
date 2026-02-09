@@ -43,16 +43,23 @@ export function init(config = {}) {
         }
     }
 
-    // Format message content (bold and tables)
+    // Format message content (bold, tables, and links)
     function formatMessage(content) {
         if (!content) return '';
 
         let formatted = content;
 
-        // 1. Bold: **text** -> <strong>text</strong>
+        // 1. Emails: user@example.com -> <a href="mailto:user@example.com">user@example.com</a>
+        formatted = formatted.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi, '<a href="mailto:$1">$1</a>');
+
+        // 2. URLs: https://google.com -> <a href="https://google.com" target="_blank">https://google.com</a>
+        // Avoid double-wrapping content that is already in an <a> tag (from email step) or has a protocol
+        formatted = formatted.replace(/(?<!href=")(https?:\/\/[^\s<]+)/gi, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // 3. Bold: **text** -> <strong>text</strong>
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-        // 2. Tables: | col1 | col2 |
+        // 4. Tables: | col1 | col2 |
         const lines = formatted.split('\n');
         let inTable = false;
         let tableHTML = '';
@@ -336,15 +343,38 @@ export function init(config = {}) {
                 
                 .ragged-message-content {
                     max-width: 85%;
-                    padding: 12px 16px;
+                    padding: 14px 18px;
                     border-radius: 16px;
                     font-size: 14px;
-                    line-height: 1.5;
+                    line-height: 1.6;
+                    font-weight: 600;
                     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    word-break: break-word;
                 }
                 
-                .ragged-message-content strong {
+                .ragged-message-content a {
+                    color: inherit;
+                    text-decoration: underline;
+                    text-underline-offset: 2px;
+                    transition: opacity 0.2s;
+                }
+
+                .ragged-message-content a:hover {
+                    opacity: 0.8;
+                }
+
+                .ragged-message-content iframe, 
+                .ragged-message-content embed {
+                    max-width: 100%;
+                    border-radius: 12px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    margin: 8px 0;
                     font-weight: 700;
+                }
+
+                .ragged-message-content strong {
+                    font-weight: 800;
                     color: inherit;
                 }
 
