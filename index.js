@@ -4,6 +4,8 @@ export function init(config = {}) {
     // Configuration
     const API_URL = config.apiUrl || 'https://ragflowdb.onrender.com/api';
     const subdomain = config.subdomain;
+    let widgetShape = config.widgetShape || 'circle'; // Fallback to circle
+    let widgetSize = config.widgetSize || 'medium'; // Fallback to medium
 
     if (!subdomain) {
         console.error('[Ragged SDK] Error: subdomain is required. Usage: Ragged.init({ subdomain: "your-subdomain" })');
@@ -535,10 +537,7 @@ export function init(config = {}) {
                 }
                 
                 #ragged-toggle-btn {
-                    width: 56px;
-                    height: 56px;
                     border: none;
-                    border-radius: 50%;
                     color: white;
                     cursor: pointer;
                     display: flex;
@@ -548,6 +547,31 @@ export function init(config = {}) {
                     transition: all 0.2s;
                     position: relative;
                     overflow: hidden;
+                }
+                
+                /* Size variations */
+                #ragged-toggle-btn.size-small {
+                    width: 48px;
+                    height: 48px;
+                }
+                
+                #ragged-toggle-btn.size-medium {
+                    width: 56px;
+                    height: 56px;
+                }
+                
+                #ragged-toggle-btn.size-large {
+                    width: 68px;
+                    height: 68px;
+                }
+                
+                /* Shape variations */
+                #ragged-toggle-btn.shape-circle {
+                    border-radius: 50%;
+                }
+                
+                #ragged-toggle-btn.shape-rounded-square {
+                    border-radius: 16px;
                 }
                 
                 #ragged-toggle-btn:hover {
@@ -783,6 +807,32 @@ export function init(config = {}) {
             chatTitle.textContent = chatConfig.name || 'AI Agent';
             input.placeholder = chatConfig.settings?.placeholder || 'Type your message here...';
             emptyTitle.textContent = chatConfig.settings?.welcomeMessage || 'How can I help you?';
+
+            // Apply widget shape and size customization
+            if (chatConfig.settings) {
+                // Prioritize backend settings if they exist, otherwise use init config
+                if (chatConfig.settings.widgetShape) widgetShape = chatConfig.settings.widgetShape;
+                if (chatConfig.settings.widgetSize) widgetSize = chatConfig.settings.widgetSize;
+            }
+
+            if (toggleBtn) {
+                // Clear any existing shape/size classes
+                toggleBtn.classList.remove('shape-circle', 'shape-rounded-square', 'size-small', 'size-medium', 'size-large');
+                toggleBtn.classList.add(`shape-${widgetShape}`);
+                toggleBtn.classList.add(`size-${widgetSize}`);
+
+                // Also update icon sizing
+                const iconMessage = document.getElementById('ragged-icon-message');
+                const iconClose = document.getElementById('ragged-icon-close');
+                if (iconMessage) {
+                    iconMessage.setAttribute('width', widgetSize === 'small' ? '24' : widgetSize === 'large' ? '32' : '28');
+                    iconMessage.setAttribute('height', widgetSize === 'small' ? '24' : widgetSize === 'large' ? '32' : '28');
+                }
+                if (iconClose) {
+                    iconClose.setAttribute('width', widgetSize === 'small' ? '24' : widgetSize === 'large' ? '32' : '28');
+                    iconClose.setAttribute('height', widgetSize === 'small' ? '24' : widgetSize === 'large' ? '32' : '28');
+                }
+            }
 
             // Set custom logo for all users (free platform)
             if (chatConfig.settings?.brandLogo) {
