@@ -86,16 +86,56 @@ export function init(config = {}) {
         if (!container || !chatConfig?.settings?.bookmarks) return;
 
         const links = chatConfig.settings.bookmarks;
-        container.innerHTML = links.map(link => `
-            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="ragged-link-item">
-                <span class="ragged-link-label">${link.label}</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 22 3 22 10"></polyline>
-                    <line x1="10" y1="14" x2="22" y2="3"></line>
-                </svg>
+
+        const getIconForLabel = (label) => {
+            const l = label.toLowerCase();
+            if (l.includes('blog')) return `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`;
+            if (l.includes('start')) return `<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>`;
+            if (l.includes('doc')) return `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>`;
+            if (l.includes('community') || l.includes('group')) return `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`;
+            return `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`;
+        };
+
+        const getDescForLabel = (label) => {
+            const l = label.toLowerCase();
+            if (l.includes('blog')) return 'Latest updates, tutorials, and tech insights.';
+            if (l.includes('start')) return 'Quick start guides to launch your project.';
+            if (l.includes('doc')) return 'Detailed API references and platform guides.';
+            if (l.includes('community')) return 'Connect with other developers and experts.';
+            return 'Explore our resources and helpful links.';
+        };
+
+        const gridHTML = links.map(link => `
+            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="ragged-link-card">
+                <div class="ragged-link-card-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        ${getIconForLabel(link.label)}
+                    </svg>
+                </div>
+                <div class="ragged-link-card-title-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    <span class="ragged-link-card-title">${link.label}</span>
+                </div>
+                <div class="ragged-link-card-desc">${getDescForLabel(link.label)}</div>
+                <div class="ragged-link-card-footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 22 3 22 10"/>
+                        <line x1="10" y1="14" x2="22" y2="3"/>
+                    </svg>
+                </div>
             </a>
         `).join('');
+
+        container.innerHTML = `
+            ${gridHTML}
+            <div style="grid-column: span 2;">
+                // <div class="ragged-links-bottom">Need help? <a mailto="support@raggedai.com" onclick="Ragged.switchTab('support'); return false;">Contact Support</a></div>
+            </div>
+        `;
     }
 
     // Handle support form submission
@@ -236,76 +276,71 @@ export function init(config = {}) {
                 
                 #ragged-chat-window {
                     position: fixed;
-                    bottom: 96px;
-                    right: 24px;
-                    width: calc(100% - 48px);
-                    height: calc(100% - 140px);
-                    max-width: 380px;
-                    max-height: 540px;
-                    background: rgba(9, 9, 11, 0.8);
-                    backdrop-filter: blur(48px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    inset: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: #0f1117;
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
-                    transition: all 0.3s ease;
-                    border-radius: 24px;
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 1000000;
                 }
                 
                 @media (min-width: 640px) {
                     #ragged-chat-window {
                         position: static;
-                        width: 380px;
-                        height: 540px;
-                        margin-bottom: 20px;
-                        border-radius: 32px;
-                        box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.6);
+                        width: 320px;
+                        height: 520px;
+                        margin-bottom: 24px;
+                        border-radius: 20px;
+                        box-shadow: 0 32px 64px rgba(0,0,0,0.7);
+                        display: flex;
+                        flex-direction: column;
                     }
                 }
                 
+                #ragged-header-gradient {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 1px;
+                    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+                    z-index: 20;
+                }
+
                 #ragged-chat-header {
-                    padding: 16px;
-                    background: white;
-                    color: black;
+                    padding: 16px 18px;
+                    background: #0f1117;
+                    color: white;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
                     flex-shrink: 0;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-chat-header {
-                        padding: 24px;
-                    }
+                    position: relative;
+                    z-index: 10;
                 }
                 
                 #ragged-chat-header-left {
                     display: flex;
                     align-items: center;
-                    gap: 16px;
+                    gap: 10px;
                 }
                 
                 #ragged-chat-avatar {
                     width: 32px;
                     height: 32px;
-                    background: black;
-                    color: white;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #a1a1aa;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
                     overflow: hidden;
                     flex-shrink: 0;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-chat-avatar {
-                        width: 40px;
-                        height: 40px;
-                    }
                 }
                 
                 #ragged-chat-avatar img {
@@ -316,114 +351,102 @@ export function init(config = {}) {
                 
                 #ragged-chat-title {
                     font-weight: 700;
-                    font-size: 13px;
-                    letter-spacing: -0.05em;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-chat-title {
-                        font-size: 14px;
-                    }
-                }
-                
-                #ragged-chat-status {
-                    font-size: 9px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.1em;
-                    color: #71717a;
-                    margin-top: 2px;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-chat-status {
-                        font-size: 10px;
-                        margin-top: 4px;
-                    }
+                    font-size: 14px;
+                    letter-spacing: -0.01em;
+                    line-height: 1;
+                    color: #fff;
                 }
                 
                 #ragged-close-btn {
                     background: transparent;
                     border: none;
                     cursor: pointer;
-                    padding: 12px;
+                    padding: 4px;
                     border-radius: 50%;
-                    transition: background 0.2s;
-                    min-width: 44px;
-                    min-height: 44px;
+                    transition: color 0.15s;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-close-btn {
-                        padding: 8px;
-                        min-width: auto;
-                        min-height: auto;
-                    }
+                    color: rgba(255, 255, 255, 0.4);
                 }
                 
                 #ragged-close-btn:hover {
-                    background: rgba(0, 0, 0, 0.05);
+                    color: white;
                 }
                 
                 #ragged-messages {
                     flex: 1;
                     overflow-y: auto;
-                    padding: 16px 24px;
+                    padding: 24px;
                     display: flex;
                     flex-direction: column;
                     gap: 24px;
                 }
                 
-                @media (min-width: 768px) {
-                    #ragged-messages {
-                        padding: 24px;
-                    }
-                }
-                
                 #ragged-empty-state {
-                    text-align: center;
-                    padding: 40px 20px;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 32px 24px 24px;
+                    min-height: 300px;
+                    background: #0f1117;
                 }
                 
-                @media (min-width: 640px) {
-                    #ragged-empty-state {
-                        padding: 80px 20px;
-                    }
+                #ragged-empty-icon-wrapper {
+                    position: relative;
+                    margin-bottom: 24px;
                 }
-                
+
                 #ragged-empty-icon {
-                    width: 64px;
-                    height: 64px;
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 16px;
+                    width: 72px;
+                    height: 72px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin: 0 auto 16px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                #ragged-notification-dot {
+                    position: absolute;
+                    top: 7px;
+                    right: 7px;
+                    width: 11px;
+                    height: 11px;
+                    background: #fff;
+                    border-radius: 50%;
+                    border: 2px solid #0f1117;
                 }
                 
                 #ragged-empty-title {
                     font-size: 18px;
-                    font-weight: 600;
-                    color: #e4e4e7;
-                    margin-bottom: 8px;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-empty-title {
-                        font-size: 20px;
-                    }
+                    font-weight: 800;
+                    color: #fff;
+                    text-align: center;
+                    margin-bottom: 10px;
+                    line-height: 1.3;
+                    letter-spacing: -0.02em;
                 }
                 
                 #ragged-empty-text {
+                    font-size: 12px;
                     color: #71717a;
-                    font-size: 14px;
-                    max-width: 300px;
-                    margin: 0 auto;
+                    text-align: center;
+                    line-height: 1.6;
+                    max-width: 220px;
+                    margin-bottom: 24px;
+                }
+
+                #ragged-start-chat-text {
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: 800;
+                    letter-spacing: -0.01em;
+                    cursor: default;
+                    text-decoration: none;
                 }
                 
                 .ragged-message {
@@ -559,64 +582,73 @@ export function init(config = {}) {
                 }
                 
                 #ragged-input-container {
-                    padding: 16px 24px;
-                    background: rgba(24, 24, 27, 0.5);
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    padding: 14px 16px;
+                    background: #0f1117;
+                    border-top: 1px solid rgba(255, 255, 255, 0.06);
                     flex-shrink: 0;
-                }
-                
-                @media (min-width: 768px) {
-                    #ragged-input-container {
-                        padding: 24px;
-                    }
                 }
                 
                 #ragged-input-form {
                     display: flex;
-                    gap: 12px;
+                    gap: 10px;
+                    align-items: center;
+                }
+                
+                #ragged-input-bar {
+                    flex: 1;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.07);
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    padding: 4px 10px;
+                    gap: 6px;
+                    transition: all 0.2s;
+                }
+
+                #ragged-input-bar:focus-within {
+                    border-color: rgba(255, 255, 255, 0.14);
+                    background: rgba(255, 255, 255, 0.05);
                 }
                 
                 #ragged-input {
                     flex: 1;
-                    background: rgba(39, 39, 42, 0.5);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    padding: 12px 20px;
-                    font-size: 14px;
-                    color: white;
+                    background: transparent;
+                    border: none;
                     outline: none;
-                    transition: all 0.2s;
+                    color: #e4e4e7;
+                    font-size: 13px;
+                    padding: 8px 0;
                 }
-                
-                #ragged-input::placeholder {
+
+                .ragged-input-action-btn {
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
                     color: #52525b;
+                    display: flex;
+                    align-items: center;
+                    padding: 4px;
+                    transition: color 0.15s;
                 }
-                
-                #ragged-input:focus {
-                    border-color: rgba(59, 130, 246, 0.5);
-                    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+                .ragged-input-action-btn:hover {
+                    color: #a1a1aa;
                 }
                 
                 #ragged-send-btn {
-                    padding: 12px 16px;
+                    width: 36px;
+                    height: 36px;
                     border: none;
-                    border-radius: 16px;
-                    font-weight: 500;
-                    font-size: 14px;
+                    border-radius: 8px;
+                    background: white;
+                    color: black;
                     cursor: pointer;
-                    transition: all 0.2s;
                     display: flex;
                     align-items: center;
-                    gap: 6px;
-                    color: white;
-                    min-height: 44px;
-                }
-                
-                @media (min-width: 640px) {
-                    #ragged-send-btn {
-                        padding: 12px 24px;
-                        gap: 8px;
-                    }
+                    justify-content: center;
+                    transition: transform 0.1s;
+                    flex-shrink: 0;
                 }
                 
                 #ragged-send-btn:hover {
@@ -712,32 +744,31 @@ export function init(config = {}) {
 
                 #ragged-tabs {
                     display: flex;
-                    background: #18181b;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    background: #161820;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
                     flex-shrink: 0;
                 }
 
                 .ragged-tab-btn {
                     flex: 1;
-                    padding: 12px 0;
+                    padding: 11px 0;
                     background: transparent;
                     border: none;
-                    color: #71717a;
-                    font-size: 10px;
-                    font-weight: 700;
+                    color: #52525b;
+                    font-size: 9px;
+                    font-weight: 900;
                     text-transform: uppercase;
-                    letter-spacing: 0.1em;
+                    letter-spacing: 0.12em;
                     cursor: pointer;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 4px;
-                    transition: all 0.2s;
+                    transition: color 0.15s;
                     position: relative;
                 }
 
                 .ragged-tab-btn:hover {
-                    color: #e4e4e7;
+                    color: #a1a1aa;
                 }
 
                 .ragged-tab-btn.active {
@@ -748,23 +779,26 @@ export function init(config = {}) {
                     content: '';
                     position: absolute;
                     bottom: 0;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 4px;
-                    height: 4px;
+                    left: 20%;
+                    right: 20%;
+                    height: 2px;
                     background: white;
-                    border-radius: 50%;
+                    border-radius: 2px;
+                }
+
+                #ragged-chat-view, #ragged-links-view, #ragged-support-view {
+                    flex: 1;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 0;
                 }
 
                 #ragged-links-view, #ragged-support-view {
-                    flex: 1;
-                    overflow-y: auto;
                     padding: 24px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
+                    gap: 16px;
                 }
-
+           
                 .ragged-view-title {
                     font-size: 10px;
                     font-weight: 700;
@@ -776,96 +810,203 @@ export function init(config = {}) {
                     padding-bottom: 8px;
                 }
 
-                .ragged-link-item {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 16px;
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 16px;
-                    text-decoration: none;
-                    color: #e4e4e7;
-                    transition: all 0.2s;
+                #ragged-links-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 6px;
+                    padding-bottom: 24px;
                 }
 
-                .ragged-link-item:hover {
-                    background: rgba(255, 255, 255, 0.1);
-                    transform: translateY(-2px);
-                }
-
-                .ragged-link-label {
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-
-                .ragged-support-form {
+                .ragged-link-card {
+                    background: #0f1117;
+                    border: 1px solid rgba(255, 255, 255, 0.07);
+                    border-radius: 8px;
+                    padding: 9px 10px;
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
+                    text-decoration: none;
+                    min-height: 82px;
+                    transition: background 0.15s, border-color 0.15s;
+                }
+
+                .ragged-link-card:hover {
+                    background: #161618;
+                    border-color: rgba(255, 255, 255, 0.13);
+                }
+
+                .ragged-link-card-icon {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 5px;
+                    background: rgba(255, 255, 255, 0.07);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 8px;
+                    flex-shrink: 0;
+                }
+
+                .ragged-link-card-icon svg {
+                    width: 10px;
+                    height: 10px;
+                    color: #a1a1aa;
+                }
+
+                .ragged-link-card-title-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    margin-bottom: 4px;
+                }
+
+                .ragged-link-card-title-row svg {
+                    width: 8px;
+                    height: 8px;
+                    color: #52525b;
+                    flex-shrink: 0;
+                }
+
+                .ragged-link-card-title {
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: #fff;
+                }
+
+                .ragged-link-card-desc {
+                    font-size: 9px;
+                    color: #71717a;
+                    line-height: 1.5;
+                    flex: 1;
+                }
+
+                .ragged-link-card-footer {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 6px;
+                }
+
+                .ragged-link-card-footer svg {
+                    width: 9px;
+                    height: 9px;
+                    color: #3f3f46;
+                    transition: color 0.15s;
+                }
+
+                .ragged-link-card:hover .ragged-link-card-footer svg {
+                    color: #71717a;
+                }
+
+                .ragged-links-bottom {
+                    margin-top: 10px;
+                    text-align: center;
+                    font-size: 9px;
+                    color: #52525b;
+                }
+
+                .ragged-links-bottom a {
+                    color: #a1a1aa;
+                    text-decoration: underline;
+                    text-underline-offset: 2px;
+                }
+
+                .ragged-section-label {
+                    font-size: 9px;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.14em;
+                    color: #52525b;
+                    margin-bottom: 18px;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
                 }
 
                 .ragged-form-group {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 5px;
+                    margin-bottom: 13px;
                 }
 
                 .ragged-form-label {
-                    font-size: 10px;
-                    font-weight: 700;
+                    font-size: 9px;
+                    font-weight: 800;
                     text-transform: uppercase;
-                    letter-spacing: 0.1em;
-                    color: #71717a;
-                    margin-left: 4px;
+                    letter-spacing: 0.13em;
+                    color: #52525b;
                 }
 
-                .ragged-form-input, .ragged-form-select, .ragged-form-textarea {
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    padding: 10px 14px;
-                    color: white;
-                    font-size: 14px;
-                    outline: none;
+                .ragged-form-input,
+                .ragged-form-select,
+                .ragged-form-textarea {
                     width: 100%;
+                    background: #0f1117;
+                    border: 1px solid rgba(255, 255, 255, 0.07);
+                    border-radius: 7px;
+                    color: #e4e4e7;
+                    font-size: 13px;
+                    font-family: inherit;
+                    outline: none;
+                    transition: border-color 0.15s, background 0.15s;
                 }
 
-                .ragged-form-input:focus, .ragged-form-select:focus, .ragged-form-textarea:focus {
-                    border-color: rgba(255, 255, 255, 0.2);
-                    background: rgba(255, 255, 255, 0.08);
+                .ragged-form-input,
+                .ragged-form-select {
+                    height: 36px;
+                    padding: 0 12px;
+                    line-height: 36px;
+                }
+
+                .ragged-form-input::placeholder,
+                .ragged-form-textarea::placeholder {
+                    color: #3f3f46;
+                }
+
+                .ragged-form-input:focus,
+                .ragged-form-select:focus,
+                .ragged-form-textarea:focus {
+                    border-color: rgba(255, 255, 255, 0.14);
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .ragged-form-select {
+                    appearance: none;
+                    cursor: pointer;
+                    padding-right: 32px;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 10px center;
+                }
+
+                .ragged-form-select option {
+                    background: #1c1c1e;
+                    color: #e4e4e7;
                 }
 
                 .ragged-form-textarea {
-                    height: 100px;
+                    min-height: 96px;
+                    padding: 10px 12px;
                     resize: none;
-                }
-
-                .ragged-form-row {
-                    display: grid;
-                    grid-template-cols: 1fr 1fr;
-                    gap: 12px;
+                    line-height: 1.5;
                 }
 
                 #ragged-support-submit {
-                    margin-top: 8px;
-                    height: 48px;
-                    border-radius: 16px;
+                    margin-top: 16px;
+                    width: 100%;
+                    height: 44px;
                     border: none;
-                    color: white;
-                    font-weight: 700;
+                    border-radius: 7px;
+                    background: #ffffff !important;
+                    color: #09090b !important;
+                    font-size: 11px;
+                    font-weight: 800;
+                    letter-spacing: 0.13em;
+                    text-transform: uppercase;
                     cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    transition: all 0.2s;
+                    transition: background 0.15s, transform 0.1s;
                 }
 
-                #ragged-support-submit:hover {
-                    transform: translateY(-2px);
-                    filter: brightness(1.1);
-                }
+                #ragged-support-submit:hover { background: #f4f4f5 !important; }
+                #ragged-support-submit:active { transform: scale(0.98); }
 
                 #ragged-support-submit:disabled {
                     opacity: 0.5;
@@ -876,9 +1017,9 @@ export function init(config = {}) {
                 .ragged-loading-spinner {
                     width: 16px;
                     height: 16px;
-                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border: 2px solid rgba(0, 0, 0, 0.3);
                     border-radius: 50%;
-                    border-top-color: white;
+                    border-top-color: #000;
                     animation: ragged-spin 0.6s linear infinite;
                 }
 
@@ -889,109 +1030,125 @@ export function init(config = {}) {
             
             <div id="ragged-widget-container">
                 <div id="ragged-chat-window" class="ragged-hidden">
-                        <div id="ragged-tabs">
-                            <button id="ragged-tab-chat" class="ragged-tab-btn active">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px;">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <div id="ragged-header-gradient"></div>
+                    <div id="ragged-chat-header">
+                        <div id="ragged-chat-header-left">
+                            <div id="ragged-chat-avatar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+                                    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"/>
                                 </svg>
-                                <span>Chat</span>
-                            </button>
-                            <button id="ragged-tab-links" class="ragged-tab-btn ragged-hidden">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px;">
-                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                </svg>
-                                <span>Links</span>
-                            </button>
-                            <button id="ragged-tab-support" class="ragged-tab-btn ragged-hidden">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px;">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <circle cx="12" cy="12" r="4"></circle>
-                                    <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
-                                    <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
-                                    <line x1="14.83" y1="4.93" x2="10.59" y2="9.17"></line>
-                                    <line x1="4.93" y1="14.83" x2="9.17" y2="19.07"></line>
-                                </svg>
-                                <span>Support</span>
-                            </button>
+                            </div>
+                            <span id="ragged-chat-title">Support</span>
                         </div>
+                        <button id="ragged-close-btn" aria-label="Close Chat">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="ragged-tabs">
+                        <button id="ragged-tab-chat" class="ragged-tab-btn active">Chat</button>
+                        <button id="ragged-tab-links" class="ragged-tab-btn ragged-hidden">Links</button>
+                        <button id="ragged-tab-support" class="ragged-tab-btn ragged-hidden">Support</button>
+                    </div>
                         
-                        <div id="ragged-chat-view">
-                            <div id="ragged-messages">
-                                <div id="ragged-empty-state">
+                    <div id="ragged-chat-view">
+                        <div id="ragged-messages">
+                            <div id="ragged-empty-state">
+                                <div id="ragged-empty-icon-wrapper">
                                     <div id="ragged-empty-icon">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2">
-                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                                         </svg>
                                     </div>
-                                    <div id="ragged-empty-title">How can I help you?</div>
-                                    <div id="ragged-empty-text">Ask anything about our services, products, or pricing. I'm here to help!</div>
+                                    <div id="ragged-notification-dot"></div>
                                 </div>
+                                <div id="ragged-empty-title">Hello! How can I help you today?</div>
+                                <div id="ragged-empty-text">Ask anything about our services, products, or pricing. I'm here to help!</div>
+                                <div id="ragged-start-chat-text">Start Chatting</div>
                             </div>
+                        </div>
                             
-                            <div id="ragged-input-container">
-                                <form id="ragged-input-form">
-                                    <input 
-                                        type="text" 
-                                        id="ragged-input" 
-                                        placeholder="Type your message here..."
-                                        autocomplete="off"
-                                    />
-                                    <button type="submit" id="ragged-send-btn">
-                                        <span>Send</span>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        <div id="ragged-input-container">
+                            <form id="ragged-input-form">
+                                <div id="ragged-input-bar">
+                                    <button type="button" class="ragged-input-action-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                            <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                            <line x1="15" y1="9" x2="15.01" y2="9"/>
                                         </svg>
                                     </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div id="ragged-links-view" class="ragged-hidden">
-                            <div class="ragged-view-title">Vital Resources</div>
-                            <div id="ragged-links-list"></div>
-                        </div>
-
-                        <div id="ragged-support-view" class="ragged-hidden">
-                            <div class="ragged-view-title">Support Ticket</div>
-                            <form id="ragged-support-form" class="ragged-support-form">
-                                <div class="ragged-form-group">
-                                    <label class="ragged-form-label">Name</label>
-                                    <input type="text" id="ragged-support-name" class="ragged-form-input" required placeholder="Your Name" />
+                                    <input type="text" id="ragged-input" placeholder="Type your message..." autocomplete="off">
+                                    <button type="button" class="ragged-input-action-btn">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2.25 2.25 0 0 1-3.18-3.18l8.48-8.48"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <div class="ragged-form-group">
-                                    <label class="ragged-form-label">Email</label>
-                                    <input type="email" id="ragged-support-email" class="ragged-form-input" required placeholder="Your Email" />
-                                </div>
-                                <div class="ragged-form-row">
-                                    <div class="ragged-form-group">
-                                        <label class="ragged-form-label">Type</label>
-                                        <select id="ragged-support-type" class="ragged-form-select">
-                                            <option value="general question">General Question</option>
-                                            <option value="feature request">Feature Request</option>
-                                            <option value="issue/bug">Issue/Bug</option>
-                                            <option value="account creation">Account Creation</option>
-                                            <option value="unclear">Unclear</option>
-                                        </select>
-                                    </div>
-                                    <div class="ragged-form-group">
-                                        <label class="ragged-form-label">Impact</label>
-                                        <select id="ragged-support-impact" class="ragged-form-select">
-                                            <option value="low">Low</option>
-                                            <option value="moderate" selected>Moderate</option>
-                                            <option value="high">High</option>
-                                            <option value="blocking">Blocking</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="ragged-form-group">
-                                    <label class="ragged-form-label">Message</label>
-                                    <textarea id="ragged-support-desc" class="ragged-form-textarea" required placeholder="Tell us more..."></textarea>
-                                </div>
-                                <button type="submit" id="ragged-support-submit">Submit Ticket</button>
+                                <button type="submit" id="ragged-send-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <line x1="22" y1="2" x2="11" y2="13" stroke="#09090b" stroke-width="2.5"/>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2" fill="#09090b"/>
+                                    </svg>
+                                </button>
                             </form>
                         </div>
+                    </div>
+
+                    <div id="ragged-links-view" class="ragged-hidden">
+                        <div class="ragged-section-label">Vital Resources</div>
+                        <div id="ragged-links-list"></div>
+                    </div>
+
+                    <div id="ragged-support-view" class="ragged-hidden">
+                        <div class="ragged-section-label">Support Ticket</div>
+
+                        <form id="ragged-support-form" class="ragged-support-form">
+                            <div class="ragged-form-group">
+                                <label class="ragged-form-label">Name</label>
+                                <input type="text" id="ragged-support-name" class="ragged-form-input" placeholder="Your Name" required>
+                            </div>
+
+                            <div class="ragged-form-group">
+                                <label class="ragged-form-label">Email</label>
+                                <input type="email" id="ragged-support-email" class="ragged-form-input" placeholder="Your Email" required>
+                            </div>
+
+                            <div class="ragged-form-group">
+                                <label class="ragged-form-label">Type</label>
+                                <select id="ragged-support-type" class="ragged-form-select">
+                                    <option>Account Creation</option>
+                                    <option>General Question</option>
+                                    <option>Feature Request</option>
+                                    <option>Issue/Bug</option>
+                                </select>
+                            </div>
+
+                            <div class="ragged-form-group">
+                                <label class="ragged-form-label">Impact</label>
+                                <select id="ragged-support-impact" class="ragged-form-select">
+                                    <option>Low</option>
+                                    <option selected>Moderate</option>
+                                    <option>High</option>
+                                    <option>Blocking</option>
+                                </select>
+                            </div>
+
+                            <div class="ragged-form-group">
+                                <label class="ragged-form-label">Message</label>
+                                <textarea id="ragged-support-desc" class="ragged-form-textarea" placeholder="Tell us more..." required></textarea>
+                            </div>
+
+                            <button type="submit" id="ragged-support-submit">Submit Ticket</button>
+                        </form>
+                    </div>
                 </div>
                 
                 <button id="ragged-toggle-btn">
@@ -1129,12 +1286,14 @@ export function init(config = {}) {
 
             const primaryColor = chatConfig.settings?.primaryColor || '#000000';
             toggleBtn.style.backgroundColor = primaryColor;
-            sendBtn.style.backgroundColor = primaryColor;
+            // Send button is now white in the new design, removed color override
             if (supportSubmitBtn) supportSubmitBtn.style.backgroundColor = primaryColor;
 
-            chatTitle.textContent = chatConfig.name || 'AI Agent';
-            input.placeholder = chatConfig.settings?.placeholder || 'Type your message here...';
-            emptyTitle.textContent = chatConfig.settings?.welcomeMessage || 'How can I help you?';
+            if (chatTitle) chatTitle.textContent = chatConfig.name || 'Support';
+            if (input) input.placeholder = chatConfig.settings?.placeholder || 'Type your message...';
+            if (emptyTitle) emptyTitle.textContent = chatConfig.settings?.welcomeMessage || 'Hello! How can I help you today?';
+
+            // Removed Start Chatting button listener as it is now text
 
             // Show Tabs based on config
             if (chatConfig.settings?.bookmarks?.length > 0) {
@@ -1180,23 +1339,31 @@ export function init(config = {}) {
                     toggleLogo.innerHTML = `<img src="${logoUrl}" alt="Chat" style="width:100%; height:100%; object-fit:cover;" />`;
                     toggleLogo.classList.remove('hidden');
                     // Hide the default message icon if logo is present
-                    const iconMessage = document.getElementById('ragged-icon-message');
-                    if (iconMessage) iconMessage.classList.add('hidden');
+                    const iconMsg = document.getElementById('ragged-icon-message');
+                    if (iconMsg) iconMsg.classList.add('hidden');
                 }
             }
         }
 
-        document.getElementById('ragged-toggle-btn').addEventListener('click', toggleWidget);
-        document.getElementById('ragged-close-btn').addEventListener('click', toggleWidget);
-        document.getElementById('ragged-input-form').addEventListener('submit', handleSend);
+        const toggleBtn = document.getElementById('ragged-toggle-btn');
+        const closeBtn = document.getElementById('ragged-close-btn');
+        const inputForm = document.getElementById('ragged-input-form');
+        const tabChat = document.getElementById('ragged-tab-chat');
+        const tabLinks = document.getElementById('ragged-tab-links');
+        const tabSupport = document.getElementById('ragged-tab-support');
+        const supportForm = document.getElementById('ragged-support-form');
+
+        if (toggleBtn) toggleBtn.addEventListener('click', toggleWidget);
+        if (closeBtn) closeBtn.addEventListener('click', toggleWidget);
+        if (inputForm) inputForm.addEventListener('submit', handleSend);
 
         // Tab Listeners
-        document.getElementById('ragged-tab-chat').addEventListener('click', () => switchTab('chat'));
-        document.getElementById('ragged-tab-links').addEventListener('click', () => switchTab('links'));
-        document.getElementById('ragged-tab-support').addEventListener('click', () => switchTab('support'));
+        if (tabChat) tabChat.addEventListener('click', () => switchTab('chat'));
+        if (tabLinks) tabLinks.addEventListener('click', () => switchTab('links'));
+        if (tabSupport) tabSupport.addEventListener('click', () => switchTab('support'));
 
         // Support Form Listener
-        document.getElementById('ragged-support-form').addEventListener('submit', handleSubmitSupport);
+        if (supportForm) supportForm.addEventListener('submit', handleSubmitSupport);
     }
 
     if (document.readyState === 'loading') {
