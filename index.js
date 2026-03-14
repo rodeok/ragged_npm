@@ -133,7 +133,7 @@ export function init(config = {}) {
         container.innerHTML = `
             ${gridHTML}
             <div style="grid-column: span 2;">
-                // <div class="ragged-links-bottom">Need help? <a mailto="support@raggedai.com" onclick="Ragged.switchTab('support'); return false;">Contact Support</a></div>
+                 <div class="ragged-links-bottom">Need help? <a mailto="support@raggedai.com" onclick="Ragged.switchTab('support'); return false;">Contact Support</a></div>
             </div>
         `;
     }
